@@ -1,5 +1,5 @@
 require("dotenv").config(); // enable reading from .env file
-require("./models"); // enable app access database
+// require("./models"); // enable app access database
 
 const PORT = process.env.PORT;
 const secret = process.env.SECRET;
@@ -15,8 +15,8 @@ app.use(require("body-parser").urlencoded({ extended: true }));
 app.use(require("body-parser").json({ limit: "50mb" }));
 app.use(require("cookie-session")({ secret, resave: true, saveUninitialized: true }));
 
-app.use("/admin/", routes.Admin);
 app.use("/auth/", routes.Auth);
+app.use("/admin/", routes.Admin);
 app.use("/translation/", routes.Translation);
 
 server.listen(PORT, () => console.log(`OpenTranslation:::listening on port ${PORT}`));
