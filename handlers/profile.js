@@ -8,10 +8,14 @@
 // const validate = require("../utils/validator").validate;
 // const pushMail = require("../utils/pushMail").pushMail;
 
+const { Profiles } = require("../models");
 const { catchError } = require("../utils/serverFunctions");
 
 exports.signup = async (req, res) => {
   try {
+    const a = await Profiles;
+    console.log(a);
+
     res.status(200).json("successful");
   } catch (err) {
     console.log(err);
