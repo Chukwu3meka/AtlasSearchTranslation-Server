@@ -1,11 +1,8 @@
-const handler = require("../handlers"),
-  router = require("express").Router(),
-  authMiddleWare = require("../middleware/authentication");
+const router = require("express").Router(),
+  handler = require("../handlers/admin"),
+  authWare = require("../middleware/auth");
 
-router.route("/initializeMass").post(handler.initializeMass);
-router.route("/matchTask").post(handler.matchTask);
-router.route("/dailyTask").post(handler.dailyTask);
-router.route("/weeklyTask").post(handler.weeklyTask);
-router.route("/starter").post(handler.starter);
+router.route("/signup").post(authWare, handler.signup);
+router.route("/starter").post(authWare, handler.starter);
 
 module.exports = router;
