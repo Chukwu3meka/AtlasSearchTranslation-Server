@@ -5,6 +5,7 @@ const ObjectId = require("mongodb").ObjectId;
 const validate = require("../utils/validator");
 const mailSender = require("../utils/mailSender");
 
+const { Profiles } = require("../models");
 const { catchError, verificationGenerator } = require("../utils/serverFunctions");
 
 exports.signup = async (req, res) => {

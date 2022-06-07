@@ -5,12 +5,12 @@ const ObjectId = require("mongodb").ObjectId;
 const validate = require("../utils/validator");
 const mailSender = require("../utils/mailSender");
 
+const { Greetings } = require("../models");
 const { catchError, verificationGenerator } = require("../utils/serverFunctions");
 
 exports.searchTranslation = async (req, res) => {
   try {
     const { sourceText, sourceLanguage, translationLanguage } = req.body;
-    const { Greetings } = await require("@db").default();
 
     const projectLanguage =
       translationLanguage === "French" ? { french: 1 } : translationLanguage === "Spanish" ? { spanish: 1 } : { english: 1 };
