@@ -16,7 +16,7 @@ app.use(require("cookie-session")({ secret, resave: true, saveUninitialized: tru
 
 // app.use("/admin/", routes.Admin);
 // app.use("/translation/", routes.Translation);
-app.use("/profile/", require("./routes/profile"));
+app.use("/API/profile/", require("./routes/profile"));
 
 console.log("hey");
 
