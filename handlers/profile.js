@@ -8,12 +8,14 @@
 // const validate = require("../utils/validator").validate;
 // const pushMail = require("../utils/pushMail").pushMail;
 
-const { Profiles } = require("../models");
+const { client } = require("../models");
 const { catchError } = require("../utils/serverFunctions");
 
 exports.signup = async (req, res) => {
   try {
-    const a = await Profiles;
+    // const a = await client.db().collections();
+
+    const a = await client.db().collection("profiles").insertOne({ a: "Sdsd" });
     console.log(a);
 
     res.status(200).json("successful");
