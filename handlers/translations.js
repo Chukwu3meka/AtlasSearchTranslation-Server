@@ -31,51 +31,53 @@ exports.searchTranslation = async (req, res) => {
     //   }
     // }
 
-    const searchQuery = [
-      sourceText.length > 6
-        ? {
-            // index: "default",
-            $search: {
-              phrase: {
-                query: sourceText,
-                path: sourceLanguage.toLowerCase(),
-              },
-            },
-          }
-        : {
-            $search: {
-              index: "greaterThanSixChar",
-              compound: {
-                must: [
-                  {
-                    text: {
-                      query: sourceText,
-                      path: sourceLanguage.toLowerCase(),
-                      score: { boost: { value: 5 } },
-                    },
-                  },
-                  {
-                    autocomplete: {
-                      query: sourceText,
-                      path: sourceLanguage.toLowerCase(),
-                      // fuzzy: { maxEdits: 1.0 },
-                    },
-                  },
-                ],
-              },
-            },
+    const searchOptionForLessCharacters = [
+      {
+        $search: {
+          phrase: {
+            query: sourceText,
+            path: sourceLanguage.toLowerCase(),
           },
+        },
+      },
+      { $project: { ...projectLanguage } },
+      { $limit: 1 },
+    ];
+
+    const searchOptionForMoreCharacters = [
+      {
+        index: "greaterThanSixChar",
+        $search: {
+          compound: {
+            must: [
+              {
+                text: {
+                  query: sourceText,
+                  path: sourceLanguage.toLowerCase(),
+                  score: { boost: { value: 5 } },
+                },
+              },
+              {
+                autocomplete: {
+                  query: sourceText,
+                  path: sourceLanguage.toLowerCase(),
+                  // fuzzy: { maxEdits: 1.0 },
+                },
+              },
+            ],
+          },
+        },
+      },
       { $project: { ...projectLanguage } },
       { $limit: 1 },
     ];
 
     // const result = await Greetings.aggregate(searchQuery, { cursor: { batchSize: 1 } }).toArray();
 
-    const result = await Greetings.aggregate(searchQuery).toArray();
-
-    // console.log(result);
-
-    // console.log(result);
+    const result =
+      sourceText.length > 6
+        ? await Greetings.aggregate(searchOptionForLessCharacters).toArray()
+        : await Greetings.aggregate(searchOptionForMoreCharacters).toArray();
 
     const id = result && result[0] ? result[0]._id : null,
       translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
