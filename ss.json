@@ -1,0 +1,19 @@
+{
+  "compound": {
+    "must": [
+      {
+        "text": {
+          "query": "hi",
+          "path": "english",
+          "score": { "boost": { "value": 5 } }
+        }
+      },
+      {
+        "autocomplete": {
+          "query": "hi",
+          "path": "english"
+        }
+      }
+    ]
+  }
+}

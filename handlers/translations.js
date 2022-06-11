@@ -31,7 +31,7 @@ exports.searchTranslation = async (req, res) => {
     //   }
     // }
 
-    const searchOptionForLessCharacters = [
+    const searchOptionForMoreCharacters = [
       {
         $search: {
           phrase: {
@@ -44,30 +44,29 @@ exports.searchTranslation = async (req, res) => {
       { $limit: 1 },
     ];
 
-    const searchOptionForMoreCharacters = [
+    const searchOptionForLessCharacters = [
       {
-        index: "greaterThanSixChar",
-        $search: {
-          compound: {
-            must: [
-              {
-                text: {
-                  query: sourceText,
-                  path: sourceLanguage.toLowerCase(),
-                  score: { boost: { value: 5 } },
-                },
+        index: "lessThanSixChars",
+        compound: {
+          must: [
+            {
+              text: {
+                query: sourceText,
+                path: sourceLanguage.toLowerCase(),
+                score: { boost: { value: 5 } },
               },
-              {
-                autocomplete: {
-                  query: sourceText,
-                  path: sourceLanguage.toLowerCase(),
-                  // fuzzy: { maxEdits: 1.0 },
-                },
+            },
+
+            {
+              autocomplete: {
+                query: sourceText,
+                path: sourceLanguage.toLowerCase(),
               },
-            ],
-          },
+            },
+          ],
         },
       },
+
       { $project: { ...projectLanguage } },
       { $limit: 1 },
     ];
@@ -75,7 +74,7 @@ exports.searchTranslation = async (req, res) => {
     // const result = await Greetings.aggregate(searchQuery, { cursor: { batchSize: 1 } }).toArray();
 
     const result =
-      sourceText.length > 6
+      sourceText.length < 6
         ? await Greetings.aggregate(searchOptionForLessCharacters).toArray()
         : await Greetings.aggregate(searchOptionForMoreCharacters).toArray();
 
