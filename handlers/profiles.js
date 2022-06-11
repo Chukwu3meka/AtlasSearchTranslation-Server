@@ -44,10 +44,10 @@ exports.signup = async (req, res) => {
       await Profiles.updateOne({ name, email }, { $set: { "auth.session": `${dbResponse.insertedId}${verificationGenerator(256)}` } });
       await mailSender({
         to: email,
-        subject: "Email Verification from OpenTranslation",
+        subject: "Email Verification from AtlasSearchTranslation",
         html: `
             <p>Hi ${name},</p>
-            <main>Welcome to OpenTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}</main>
+            <main>Welcome to AtlasSearchTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}</main>
           `,
       });
     }
@@ -78,10 +78,10 @@ exports.finalizeSignup = async (req, res) => {
         // verify profile
         await mailSender({
           to: email,
-          subject: "Email Verification from OpenTranslation",
+          subject: "Email Verification from AtlasSearchTranslation",
           html: `      
               <p>Hi ${name},</p>
-              <main>Welcome to OpenTranslation, Your email has been verified. You can login now</main>
+              <main>Welcome to AtlasSearchTranslation, Your email has been verified. You can login now</main>
             `,
         });
         await Profiles.updateOne(
@@ -97,10 +97,10 @@ exports.finalizeSignup = async (req, res) => {
 
         await mailSender({
           to: email,
-          subject: "Email Verification from OpenTranslation",
+          subject: "Email Verification from AtlasSearchTranslation",
           html: `      
               <p>Hi ${name},</p>
-              <main>Welcome to OpenTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${newVerification}&ref=${ref}</main>
+              <main>Welcome to AtlasSearchTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${newVerification}&ref=${ref}</main>
             `,
         });
 

@@ -1,7 +1,7 @@
 {
   "name": "open-translation",
   "version": "1.0.0",
-  "description": "OpenTranslation Sever",
+  "description": "AtlasSearchTranslation Sever",
   "main": "server.js",
   "scripts": {
     "multi": "pm2 kill && pm2 start process.json",

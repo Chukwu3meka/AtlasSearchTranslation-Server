@@ -19,4 +19,4 @@ app.use(require("cookie-session")({ secret, resave: true, saveUninitialized: tru
 app.use("/API/profile/", require("./routes/profiles"));
 app.use("/API/translations/", require("./routes/translations"));
 
-server.listen(PORT, () => console.log(`OpenTranslation:::listening on port ${PORT}`));
+server.listen(PORT, () => console.log(`AtlasSearchTranslation:::listening on port ${PORT}`));
