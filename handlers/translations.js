@@ -1,89 +1,55 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const ObjectId = require("mongodb").ObjectId;
-
-const validate = require("../utils/validator");
-const mailSender = require("../utils/mailSender");
-
 const { Greetings } = require("../models");
-const { catchError, verificationGenerator } = require("../utils/serverFunctions");
+const { catchError } = require("../utils/serverFunctions");
 
 exports.searchTranslation = async (req, res) => {
   try {
     const { sourceText, sourceLanguage, translationLanguage } = req.body;
 
-    const projectLanguage =
-      translationLanguage === "French" ? { french: 1 } : translationLanguage === "Spanish" ? { spanish: 1 } : { english: 1 };
-
-    // const projectLanguage = {
-    //   french: 1,
-    //   english: 1,
-    //   spanish: 1,
-    //   score: { $meta: "searchScore" },
-    // };
-
-    // if (sourceText.length > 6) {
-    //   const exactMatch = await Greetings.findOne({ [sourceLanguage.toLowerCase()]: sourceText });
-
-    //   // temporary fix for equal search score
-    //   if (exactMatch) {
-    //     return res.status(200).json({ translation: exactMatch[`${translationLanguage.toLowerCase()}`], id: exactMatch._id });
-    //   }
-    // }
-
-    const searchOptionForMoreCharacters = [
+    const searchOption = [
       {
-        $search: {
-          phrase: {
-            query: sourceText,
-            path: sourceLanguage.toLowerCase(),
-          },
-        },
+        $search:
+          sourceText.length > 6
+            ? {
+                phrase: {
+                  query: sourceText,
+                  path: sourceLanguage.toLowerCase(),
+                },
+              }
+            : {
+                index: "lessThanSixChars",
+                compound: {
+                  must: [
+                    {
+                      text: {
+                        query: sourceText,
+                        path: sourceLanguage.toLowerCase(),
+                        score: { boost: { value: 5 } },
+                      },
+                    },
+
+                    {
+                      autocomplete: {
+                        query: sourceText,
+                        path: sourceLanguage.toLowerCase(),
+                      },
+                    },
+                  ],
+                },
+              },
       },
-      { $project: { ...projectLanguage } },
+      {
+        $project: translationLanguage === "French" ? { french: 1 } : translationLanguage === "Spanish" ? { spanish: 1 } : { english: 1 },
+
+        // $project: { french: 1, english: 1, spanish: 1, score: { $meta: "searchScore" } },
+      },
       { $limit: 1 },
     ];
 
-    const searchOptionForLessCharacters = [
-      {
-        index: "lessThanSixChars",
-        compound: {
-          must: [
-            {
-              text: {
-                query: sourceText,
-                path: sourceLanguage.toLowerCase(),
-                score: { boost: { value: 5 } },
-              },
-            },
+    const result = await Greetings.aggregate(searchOption).toArray();
 
-            {
-              autocomplete: {
-                query: sourceText,
-                path: sourceLanguage.toLowerCase(),
-              },
-            },
-          ],
-        },
-      },
+    const translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
 
-      { $project: { ...projectLanguage } },
-      { $limit: 1 },
-    ];
-
-    // const result = await Greetings.aggregate(searchQuery, { cursor: { batchSize: 1 } }).toArray();
-
-    const result =
-      sourceText.length < 6
-        ? await Greetings.aggregate(searchOptionForLessCharacters).toArray()
-        : await Greetings.aggregate(searchOptionForMoreCharacters).toArray();
-
-    const id = result && result[0] ? result[0]._id : null,
-      translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
-
-    // res.status(200).json({ translation: "no translation found" });
-
-    res.status(200).json({ translation, id });
+    res.status(200).json({ translation });
   } catch (err) {
     return catchError({ res, err, message: "An error occured" });
   }

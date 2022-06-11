@@ -4,8 +4,8 @@
   "description": "AtlasSearchTranslation Sever",
   "main": "server.js",
   "scripts": {
-    "multi": "pm2 kill && pm2 start process.json",
-    "dev": "pm2 kill && pm2 start process.json && pm2 logs"
+    "dev": "pm2 kill && pm2 start process.json",
+    "start": "pm2 kill && pm2 start process.json && pm2 logs"
   },
   "keywords": [
     "open-translation"
