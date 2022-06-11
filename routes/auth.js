@@ -1,5 +1,5 @@
 const router = require("express").Router(),
-  handler = require("../handlers/profiles"),
+  handler = require("../handlers/auth"),
   authWare = require("../middleware/auth");
 
 router.route("/signup").post(handler.signup);

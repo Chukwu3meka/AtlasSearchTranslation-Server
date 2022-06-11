@@ -14,9 +14,8 @@ app.use(require("body-parser").json({ limit: "50mb" }));
 app.use(require("body-parser").urlencoded({ extended: true }));
 app.use(require("cookie-session")({ secret, resave: true, saveUninitialized: true }));
 
+app.use("/API/textTranslations/", require("./routes/textTranslations"));
+app.use("/API/auth/", require("./routes/auth"));
 // app.use("/admin/", routes.Admin);
-// app.use("/translation/", routes.Translation);
-app.use("/API/profile/", require("./routes/profiles"));
-app.use("/API/translations/", require("./routes/translations"));
 
 server.listen(PORT, () => console.log(`AtlasSearchTranslation:::listening on port ${PORT}`));

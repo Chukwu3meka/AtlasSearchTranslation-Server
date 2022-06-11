@@ -1,4 +1,4 @@
-const { Greetings } = require("../models");
+const { Greetings, Suggestions } = require("../models");
 const { catchError } = require("../utils/serverFunctions");
 
 exports.searchTranslation = async (req, res) => {
@@ -59,8 +59,6 @@ exports.suggestTranslation = async (req, res) => {
   try {
     const { sourceText, sourceLanguage, translationText, translationLanguage, translationId, suggestedTranslation } = req.body;
 
-    const { Suggestions } = await require("@db").default();
-
     await Suggestions.insertOne({
       sourceText,
       sourceLanguage,
@@ -70,7 +68,7 @@ exports.suggestTranslation = async (req, res) => {
       suggestedTranslation,
     });
 
-    res.status(200).json("successful");
+    res.status(200).json({ status: "success" });
   } catch (err) {
     return catchError({ res, err, message: "An error occured" });
   }
