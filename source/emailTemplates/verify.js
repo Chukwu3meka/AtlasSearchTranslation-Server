@@ -6,7 +6,7 @@ module.exports = ({ verifyLink, name, email }) => `
     style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px"
   >
     <p style="margin: 0">
-      Hi ${name}, Welcome to Atlas Search Translation. We’re so excited to have you as a part of our family. Confirm your email address
+      Hi ${name}, Welcome to Atlas Search Translation. Confirm your email address
       by tapping the button below to verify that ${email} is the email address you provided during signup. If you didn't create an
       account with
       <a href="${process.env.CLIENT}">Atlas Search Translation</a>, you can safely delete this email.
@@ -57,7 +57,7 @@ module.exports = ({ verifyLink, name, email }) => `
     <br/>
     <a href="${process.env.CLIENT}/${verifyLink}" target="_blank">${verifyLink}</a>
     <br/>
-This link will expire in the next 24 hours and your account will be deleted if not activated
+This link will expire in the next 24 hours
     </p>
   </td>
 </tr>

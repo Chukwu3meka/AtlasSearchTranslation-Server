@@ -1,11 +1,18 @@
-module.exports = () => `
+module.exports = ({ name }) => `
 <tr>
   <td
     align="left"
     bgcolor="#ffffff"
     style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px"
   >
-    <p style="margin: 0">Thank you for signing up with Atlas Search Translation. We strive to provide high quality translations.</p>
+  <p style="margin: 0">Welcome ${name},  
+  <br/>
+  <br/>
+  We’re so excited to have you as a part of our family. We strive to provide high quality translations.
+<br/>
+<br/>
+  Thank you for signing up with Atlas Search Translation.
+  </p>
   </td>
 </tr>
 

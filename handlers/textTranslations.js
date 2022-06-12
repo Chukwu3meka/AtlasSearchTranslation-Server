@@ -1,5 +1,5 @@
 const { Greetings, Suggestions } = require("../models");
-const { catchError } = require("../utils/serverFunctions");
+const { catchError } = require("../utils/quickFunctions");
 
 exports.searchTranslation = async (req, res) => {
   try {

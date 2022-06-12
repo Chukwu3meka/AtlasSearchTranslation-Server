@@ -192,7 +192,7 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
             
             <!-- template -->
 
-      ${emailTemplates["verify"]({ ...templatesParams, email })}
+      ${emailTemplates[template]({ ...templatesParams, email })}
 
       <!-- template -->
 

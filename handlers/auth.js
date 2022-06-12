@@ -6,8 +6,7 @@ const validate = require("../utils/validate");
 const mailSender = require("../utils/mailSender");
 
 const { Profiles } = require("../models");
-const verifyMail = require("../source/emailTemplates/verify");
-const { catchError, verificationGenerator } = require("../utils/serverFunctions");
+const { catchError, verificationGenerator } = require("../utils/quickFunctions");
 
 exports.signup = async (req, res) => {
   try {
@@ -23,7 +22,7 @@ exports.signup = async (req, res) => {
 
     // check if email is taken already
     const emailTaken = await Profiles.findOne({ email });
-    if (emailTaken) throw { label: "Email taken" };
+    if (emailTaken) throw { message: "Email taken" };
 
     const verification = verificationGenerator(),
       hashedPassword = await bcrypt.hash(password, 10);
@@ -37,7 +36,7 @@ exports.signup = async (req, res) => {
       auth: {
         role: "user",
         verification: {
-          ref: verification,
+          code: verification,
           time: new Date(),
         },
         password: hashedPassword,
@@ -65,7 +64,7 @@ exports.signup = async (req, res) => {
 
     res.status(200).json({ status: "success" });
   } catch (err) {
-    return catchError({ res, err, message: "Unable to create account" });
+    return catchError({ res, err, message: err.message || "Unable to create account" });
   }
 };
 
@@ -79,41 +78,17 @@ exports.finalizeSignup = async (req, res) => {
     const profileData = await Profiles.findOne({ _id: new ObjectId(ref) });
 
     // check if profile exists and has not been verified
-    if (profileData && profileData.auth.verification) {
+    if (profileData && profileData.auth.verification.code) {
       const {
         email,
         name,
         stat: { dateCreated },
-        auth: { verification: dbVerification },
+        auth: {
+          verification: { code },
+        },
       } = profileData;
 
-      console.log({ verification, dbVerification }, verification === dbVerification);
-
-      if (verification === dbVerification) {
-        // check if date exceeds 24 hrs
-
-        // dateCreated
-        console.log("fine");
-        return;
-        await mailSender({
-          email: email,
-          subject: "Welcome to Atlas Search Translation",
-          template: "welcome",
-          preheader: `Welcome ${name}!`,
-        });
-
-        await Profiles.updateOne(
-          { _id: new ObjectId(ref), "auth.verification": verification },
-          { $set: { "auth.verification": false } }
-        );
-
-        return res.status(200).json({ status: "Email Verification successful" });
-      } else {
-        console.log("fsdslhjk");
-
-        return;
-
-        // resend new verification link
+      const resendVerification = async () => {
         const newVerification = verificationGenerator();
 
         await mailSender({
@@ -126,14 +101,39 @@ exports.finalizeSignup = async (req, res) => {
         });
 
         await Profiles.updateOne({ _id: new ObjectId(ref) }, { $set: { "auth.verification": newVerification } });
+
+        throw { message: "Link might have expired, we just sent another verification link" };
+      };
+
+      if (verification === code) {
+        // check if date exceeds 24 hrs
+        const expiredVerification = Math.round(Math.abs(new Date(dateCreated).getTime() - new Date().getTime()) / 36e5) > 24;
+
+        // resend new verification link
+        if (expiredVerification) return await resendVerification();
+
+        await Profiles.updateOne(
+          { _id: new ObjectId(ref), "auth.verification.code": verification },
+          { $set: { "auth.verification.code": false } }
+        );
+
+        await mailSender({
+          email: email,
+          subject: "Welcome to Atlas Search Translation",
+          template: "welcome",
+          preheader: `Welcome ${name}!`,
+          name,
+        });
+
+        return res.status(200).json({ status: "Email Verification successful" });
+      } else {
+        await resendVerification(); // <= resend new verification link
       }
-      throw { label: "Link might have expired, we just sent another verification link" };
     } else {
-      throw { label: "Link might have expired or is invalid" };
+      throw { message: "Link might have expired or is invalid" };
     }
   } catch (err) {
-    console.log(err);
-    return catchError({ res, err, message: "Unable to finalize signup" });
+    return catchError({ res, err, message: err.message || "Unable to finalize signup" });
   }
 };
 
@@ -150,7 +150,7 @@ exports.signin = async (req, res) => {
 
     // verify that account exist, else throw an error
     const profileData = await Profiles.findOne({ email });
-    if (!profileData) throw { label: "Invalid Email/Password" };
+    if (!profileData) throw { message: "Invalid Email/Password" };
 
     const rightPassword = await bcrypt.compare(password, profileData.auth.password);
 
@@ -166,7 +166,7 @@ exports.signin = async (req, res) => {
     } else {
       // increment wrongPassword counter
       await Profiles.updateOne({ email }, { $inc: { "auth.wrongAttempts": 1 } });
-      throw { label: "Invalid Email/Password" };
+      throw { message: "Invalid Email/Password" };
     }
   } catch (err) {
     return catchError({ res, err, message: "A signin  error occured" });
