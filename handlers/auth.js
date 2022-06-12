@@ -2,10 +2,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const ObjectId = require("mongodb").ObjectId;
 
-const validate = require("../utils/validator");
+const validate = require("../utils/validate");
 const mailSender = require("../utils/mailSender");
 
 const { Profiles } = require("../models");
+const verifyMail = require("../source/emailTemplates/verify");
 const { catchError, verificationGenerator } = require("../utils/serverFunctions");
 
 exports.signup = async (req, res) => {
@@ -20,13 +21,12 @@ exports.signup = async (req, res) => {
       attributes: ["hasNumber", "hasSpecialChar", "hasRange", "hasLetter"],
     });
 
-    // check if email is taken already
-    const emailTaken = await Profiles.findOne({ email });
-    if (emailTaken) throw { label: "Email taken" };
+    // // check if email is taken already
+    // const emailTaken = await Profiles.findOne({ email });
+    // if (emailTaken) throw { label: "Email taken" };
 
-    const verification = verificationGenerator();
-
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const verification = verificationGenerator(),
+      hashedPassword = await bcrypt.hash(password, 10);
 
     const dbResponse = await Profiles.insertOne({
       name,
@@ -34,21 +34,30 @@ exports.signup = async (req, res) => {
       dateCreated: new Date(),
       auth: {
         role: "user",
-        verification,
+        verification: {
+          ref: verification,
+          time: new Date(),
+        },
         password: hashedPassword,
-        wrongAttempts: 0, // <= account locked && verification will be reset after 7 attempts
+        wrongAttempts: 0, // <= account locked && verification will be reset after 5 attempts
       },
     });
 
     if (dbResponse && dbResponse.insertedId) {
-      await Profiles.updateOne({ name, email }, { $set: { "auth.session": `${dbResponse.insertedId}${verificationGenerator(256)}` } });
+      const verifyLink = `/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}`;
+
+      await Profiles.updateOne(
+        { _id: new ObjectId(dbResponse.insertedId), email },
+        { $set: { "auth.session": `${dbResponse.insertedId}${verificationGenerator(256)}` } }
+      );
+
       await mailSender({
-        to: email,
-        subject: "Email Verification from AtlasSearchTranslation",
-        html: `
-            <p>Hi ${name},</p>
-            <main>Welcome to AtlasSearchTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}</main>
-          `,
+        email,
+        subject: "Email Verification",
+        template: "verify",
+        preheader: `Hello, ${name}! Kindly verify your mail by clicking on the button in this mail.`,
+        verifyLink,
+        name,
       });
     }
 
@@ -67,6 +76,10 @@ exports.finalizeSignup = async (req, res) => {
 
     const profileData = await Profiles.findOne({ _id: new ObjectId(ref) });
 
+    console.log(profileData.auth.verification);
+
+    return;
+
     // check if profile exists and has not been verified
     if (profileData && profileData.auth.verification) {
       const {
@@ -75,9 +88,15 @@ exports.finalizeSignup = async (req, res) => {
         auth: { verification: dbVerification },
       } = profileData;
       if (verification === dbVerification) {
+        await mailSender({
+          email,
+          subject: "Welcome to Atlas Search Translation ",
+          html: welcome({ verifyLink, name, email }),
+        });
+
         // verify profile
         await mailSender({
-          to: email,
+          email,
           subject: "Email Verification from AtlasSearchTranslation",
           html: `      
               <p>Hi ${name},</p>
@@ -96,7 +115,7 @@ exports.finalizeSignup = async (req, res) => {
         const newVerification = verificationGenerator();
 
         await mailSender({
-          to: email,
+          email,
           subject: "Email Verification from AtlasSearchTranslation",
           html: `      
               <p>Hi ${name},</p>

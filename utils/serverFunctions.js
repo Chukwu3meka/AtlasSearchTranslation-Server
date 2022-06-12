@@ -7,7 +7,7 @@ module.exports.catchError = ({ res, err, status = 400, message = "Internal Serve
 // verification code
 module.exports.verificationGenerator = (len = 256) => {
   let text = "";
-  const allowed = "ABCDEFGHIkLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-";
+  const allowed = "ABCDEFGHIkLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_+.";
   for (let i = 0; i < len; i++) text += allowed.charAt(Math.floor(Math.random() * allowed.length));
 
   return text.replace(/\s/g, "");

@@ -1,21 +1,3 @@
-const nodemailer = require("nodemailer");
-const emailTemplates = require("../source/emailTemplates");
-
-const mailTransporter = nodemailer.createTransport({
-  service: "zoho",
-  auth: {
-    user: process.env.EMAIL_ADDRESS,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
-const mailSender = async ({ email, subject, template, preheader, ...templatesParams }) =>
-  await mailTransporter.sendMail(
-    {
-      from: process.env.EMAIL_ADDRESS,
-      to: email,
-      subject,
-      html: `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -125,7 +107,7 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
       class="preheader"
       style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0"
     >
-    ${preheader}
+      ${preheader}
       <!-- A preheader is the short summary text that follows the subject line when an email is viewed in the inbox. -->
     </div>
     <!-- end preheader -->
@@ -164,11 +146,100 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
       </tr>
       <!-- end logo -->
 
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
 
-      ${emailTemplates["verify"]({ ...templatesParams, email })}
+      <!-- start hero -->
+      <tr>
+        <td align="center" bgcolor="#e9ecef">
+          <!--[if (gte mso 9)|(IE)]>
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+  <tr>
+  <td align="center" valign="top" width="600">
+  <![endif]-->
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px">
+            <tr>
+              <td
+                align="left"
+                bgcolor="#ffffff"
+                style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf"
+              >
+                <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px">
+                  Welcome to Atlas Search Translation
+                </h1>
+              </td>
+            </tr>
+          </table>
+          <!--[if (gte mso 9)|(IE)]>
+  </td>
+  </tr>
+  </table>
+  <![endif]-->
+        </td>
+      </tr>
+      <!-- end hero -->
 
+      <!-- start copy block -->
+      <tr>
+        <td align="center" bgcolor="#e9ecef">
+          <!--[if (gte mso 9)|(IE)]>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+    <tr>
+    <td align="center" valign="top" width="600">
+    <![endif]-->
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px">
+            <!-- start copy -->
+            <tr>
+              <td
+                bgcolor="#ffffff"
+                align="left"
+                style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px"
+              >
+                <h1 style="margin: 0 0 12px; font-size: 32px; font-weight: 400; line-height: 48px">Welcome, Jason!</h1>
+                <p style="margin: 0">
+                  Thank you for signing up with Atlas Search Translation. We strive to provide high quality translations.
+                </p>
+              </td>
+            </tr>
+            <!-- end copy -->
 
-
+            <!-- start button -->
+            <tr>
+              <td align="left" bgcolor="#ffffff">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td align="center" bgcolor="#ffffff" style="padding: 12px">
+                      <table border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" bgcolor="#1a82e2" style="border-radius: 6px">
+                            <a
+                              href="${process.env.CLIENT}"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style="
+                                display: inline-block;
+                                padding: 16px 36px;
+                                font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+                                font-size: 16px;
+                                color: #ffffff;
+                                text-decoration: none;
+                                border-radius: 6px;
+                              "
+                              >Start Translating</a
+                            >
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- end button -->`;
+            <!-- end copy block -->
           </table>
           <!--[if (gte mso 9)|(IE)]>
         </td>
@@ -177,7 +248,11 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
         <![endif]-->
         </td>
       </tr>
-      <!-- end copy block -->
+
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <!--  -->
 
       <!-- start footer -->
       <tr>
@@ -201,15 +276,13 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
                   color: #666;
                 "
               >
-              <p style="margin: 0">
-              To stop receiving these emails, you can
-              <a href="${process.env.CLIENT}/profile/subscription" target="_blank" rel="noopener noreferrer">unsubscribe</a> at any
-              time.
-            </p>
-            <br/>
-            <p style="margin: 0">Atlas Search Translation</p>
-
-
+                <p style="margin: 0">
+                  To stop receiving these emails, you can
+                  <a href="${process.env.CLIENT}/profile/subscription" target="_blank" rel="noopener noreferrer">unsubscribe</a> at any
+                  time.
+                </p>
+                <br />
+                <p style="margin: 0">Atlas Search Translation</p>
               </td>
             </tr>
             <!-- end unsubscribe -->
@@ -226,14 +299,3 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
     <!-- end body -->
   </body>
 </html>
-      `,
-    },
-
-    (err, data) => {
-      if (process.env.NODE_ENV !== "production") console.log("nodemailer res", { err, data });
-      if (err) throw "error sending mail";
-      if (data) return true;
-    }
-  );
-
-module.exports = mailSender;

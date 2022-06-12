@@ -138,4 +138,4 @@ const validate = ({ type, label, value, attributes = [] }) => {
   }
 };
 
-exports.default = validate;
+module.exports = validate;

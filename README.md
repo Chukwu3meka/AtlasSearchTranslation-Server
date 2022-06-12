@@ -31,3 +31,5 @@ Translation is an act, process, or instance of translating: such as. a : a rende
 
 <!-- https://www.section.io/engineering-education/text-to-speech-in-javascript/ text to speech -->
 <!-- initial default source lang is English and transLang is french -->
+
+<!-- https://github.com/sendgrid/email-templates -->
