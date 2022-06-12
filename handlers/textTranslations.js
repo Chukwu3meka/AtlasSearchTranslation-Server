@@ -51,7 +51,7 @@ exports.searchTranslation = async (req, res) => {
 
     res.status(200).json({ translation });
   } catch (err) {
-    return catchError({ res, err, message: "An error occured" });
+    return catchError({ res, err, message: err.message || "translation not found" });
   }
 };
 
@@ -70,7 +70,7 @@ exports.suggestTranslation = async (req, res) => {
 
     res.status(200).json({ status: "success" });
   } catch (err) {
-    return catchError({ res, err, message: "An error occured" });
+    return catchError({ res, err, message: err.message || "Suggestion not sent" });
   }
 };
 
@@ -78,6 +78,6 @@ exports.starter = async (req, res) => {
   try {
     res.status(200).json("successful");
   } catch (err) {
-    return catchError({ res, err, message: "An error occured" });
+    return catchError({ res, err, message: err.message || "An error occured" });
   }
 };
