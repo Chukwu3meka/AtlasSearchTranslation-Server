@@ -21,9 +21,9 @@ exports.signup = async (req, res) => {
       attributes: ["hasNumber", "hasSpecialChar", "hasRange", "hasLetter"],
     });
 
-    // // check if email is taken already
-    // const emailTaken = await Profiles.findOne({ email });
-    // if (emailTaken) throw { label: "Email taken" };
+    // check if email is taken already
+    const emailTaken = await Profiles.findOne({ email });
+    if (emailTaken) throw { label: "Email taken" };
 
     const verification = verificationGenerator(),
       hashedPassword = await bcrypt.hash(password, 10);
@@ -31,7 +31,9 @@ exports.signup = async (req, res) => {
     const dbResponse = await Profiles.insertOne({
       name,
       email,
-      dateCreated: new Date(),
+      stat: {
+        dateCreated: new Date(),
+      },
       auth: {
         role: "user",
         verification: {
@@ -55,7 +57,7 @@ exports.signup = async (req, res) => {
         email,
         subject: "Email Verification",
         template: "verify",
-        preheader: `Hello, ${name}! Kindly verify your mail by clicking on the button in this mail.`,
+        preheader: `Hello, ${name}! Kindly verify your email.`,
         verifyLink,
         name,
       });
@@ -76,33 +78,30 @@ exports.finalizeSignup = async (req, res) => {
 
     const profileData = await Profiles.findOne({ _id: new ObjectId(ref) });
 
-    console.log(profileData.auth.verification);
-
-    return;
-
     // check if profile exists and has not been verified
     if (profileData && profileData.auth.verification) {
       const {
         email,
         name,
+        stat: { dateCreated },
         auth: { verification: dbVerification },
       } = profileData;
+
+      console.log({ verification, dbVerification }, verification === dbVerification);
+
       if (verification === dbVerification) {
+        // check if date exceeds 24 hrs
+
+        // dateCreated
+        console.log("fine");
+        return;
         await mailSender({
-          email,
-          subject: "Welcome to Atlas Search Translation ",
-          html: welcome({ verifyLink, name, email }),
+          email: email,
+          subject: "Welcome to Atlas Search Translation",
+          template: "welcome",
+          preheader: `Welcome ${name}!`,
         });
 
-        // verify profile
-        await mailSender({
-          email,
-          subject: "Email Verification from AtlasSearchTranslation",
-          html: `      
-              <p>Hi ${name},</p>
-              <main>Welcome to AtlasSearchTranslation, Your email has been verified. You can login now</main>
-            `,
-        });
         await Profiles.updateOne(
           { _id: new ObjectId(ref), "auth.verification": verification },
           { $set: { "auth.verification": false } }
@@ -110,17 +109,20 @@ exports.finalizeSignup = async (req, res) => {
 
         return res.status(200).json({ status: "Email Verification successful" });
       } else {
-        // resend new verification link
+        console.log("fsdslhjk");
 
+        return;
+
+        // resend new verification link
         const newVerification = verificationGenerator();
 
         await mailSender({
           email,
-          subject: "Email Verification from AtlasSearchTranslation",
-          html: `      
-              <p>Hi ${name},</p>
-              <main>Welcome to AtlasSearchTranslation, Click on the link below to verify your mail http://opentranslation.vercel.app/auth/signup?verification=${newVerification}&ref=${ref}</main>
-            `,
+          subject: "Email Verification",
+          template: "verify",
+          preheader: `Hello, ${name}! Kindly verify your email.`,
+          verifyLink: `/auth/signup?verification=${newVerification}&ref=${ref}`,
+          name,
         });
 
         await Profiles.updateOne({ _id: new ObjectId(ref) }, { $set: { "auth.verification": newVerification } });
@@ -130,6 +132,7 @@ exports.finalizeSignup = async (req, res) => {
       throw { label: "Link might have expired or is invalid" };
     }
   } catch (err) {
+    console.log(err);
     return catchError({ res, err, message: "Unable to finalize signup" });
   }
 };

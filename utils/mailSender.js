@@ -15,7 +15,8 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
       from: process.env.EMAIL_ADDRESS,
       to: email,
       subject,
-      html: `<!DOCTYPE html>
+      html: `
+      <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -125,7 +126,7 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
       class="preheader"
       style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0"
     >
-    ${preheader}
+      ${preheader}
       <!-- A preheader is the short summary text that follows the subject line when an email is viewed in the inbox. -->
     </div>
     <!-- end preheader -->
@@ -145,7 +146,7 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
               <td align="center" valign="top" style="padding: 36px 24px">
                 <a href="${process.env.CLIENT}" target="_blank" style="display: inline-block">
                   <img
-                    src="${process.env.CLIENT}/images/translateIcon.png"
+                    src="https://atlassearchtranslation.com/images/translateIcon.png"
                     alt="Logo"
                     border="0"
                     width="48"
@@ -164,67 +165,94 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
       </tr>
       <!-- end logo -->
 
+      <!--  -->
+      <!--  -->
+      <!--  -->
+      <tr>
+        <td align="center" bgcolor="#e9ecef">
+          <!--[if (gte mso 9)|(IE)]>
+      <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+        <tr>
+          <td align="center" valign="top" width="600">
+    <![endif]-->
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px">
+            <!--  -->
+            
+            
+            <tr>
+  <td
+    align="left"
+    bgcolor="#ffffff"
+    style="padding: 36px 24px 0; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; border-top: 3px solid #d4dadf"
+  >
+    <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -1px; line-height: 48px">${subject}</h1>
+  </td>
+</tr>
+
+            
+            <!-- template -->
 
       ${emailTemplates["verify"]({ ...templatesParams, email })}
 
+      <!-- template -->
 
-
-          </table>
-          <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
-        </td>
-      </tr>
-      <!-- end copy block -->
-
-      <!-- start footer -->
-      <tr>
-        <td align="center" bgcolor="#e9ecef" style="padding: 24px">
-          <!--[if (gte mso 9)|(IE)]>
-        <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
-        <tr>
-        <td align="center" valign="top" width="600">
-        <![endif]-->
-          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px">
-            <!-- start unsubscribe -->
-            <tr>
-              <td
-                align="center"
-                bgcolor="#e9ecef"
-                style="
-                  padding: 12px 24px;
-                  font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
-                  font-size: 14px;
-                  line-height: 20px;
-                  color: #666;
-                "
-              >
-              <p style="margin: 0">
-              To stop receiving these emails, you can
-              <a href="${process.env.CLIENT}/profile/subscription" target="_blank" rel="noopener noreferrer">unsubscribe</a> at any
-              time.
-            </p>
-            <br/>
-            <p style="margin: 0">Atlas Search Translation</p>
-
-
-              </td>
-            </tr>
-            <!-- end unsubscribe -->
-          </table>
-          <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
-        </td>
-      </tr>
-      <!-- end footer -->
+      <!--  -->
     </table>
-    <!-- end body -->
-  </body>
+    <!--[if (gte mso 9)|(IE)]>
+    </td>
+  </tr>
+</table>
+<![endif]-->
+  </td>
+</tr>
+<!--  -->
+<!--  -->
+<!--  -->
+
+<!-- start footer -->
+<tr>
+  <td align="center" bgcolor="#e9ecef" style="padding: 24px">
+    <!--[if (gte mso 9)|(IE)]>
+  <table align="center" border="0" cellpadding="0" cellspacing="0" width="600">
+  <tr>
+  <td align="center" valign="top" width="600">
+  <![endif]-->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px">
+      <!-- start unsubscribe -->
+      <tr>
+        <td
+          align="center"
+          bgcolor="#e9ecef"
+          style="
+            padding: 12px 24px;
+            font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 20px;
+            color: #666;
+          "
+        >
+          <p style="margin: 0">
+            To stop receiving these emails, you can
+            <a href="${process.env.CLIENT}/profile/subscription" target="_blank" rel="noopener noreferrer">unsubscribe</a> at any
+            time.
+          </p>
+          <br />
+          <p style="margin: 0">Atlas Search Translation</p>
+        </td>
+      </tr>
+      <!-- end unsubscribe -->
+    </table>
+    <!--[if (gte mso 9)|(IE)]>
+  </td>
+  </tr>
+  </table>
+  <![endif]-->
+  </td>
+</tr>
+<!-- end footer -->
+</table>
+<!-- end body -->
+</body>
 </html>
       `,
     },
