@@ -55,7 +55,7 @@ module.exports = ({ verifyLink, name, email }) => `
   >
     <p style="margin: 0">If that doesn't work, copy and paste the following link in your browser:
     <br/>
-    <a href="${process.env.CLIENT}/${verifyLink}" target="_blank">${verifyLink}</a>
+    <a href="${process.env.CLIENT}${verifyLink}" target="_blank">${process.env.CLIENT}${verifyLink}</a>
     <br/>
 This link will expire in the next 24 hours
     </p>

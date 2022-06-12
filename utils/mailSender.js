@@ -258,7 +258,7 @@ const mailSender = async ({ email, subject, template, preheader, ...templatesPar
     },
 
     (err, data) => {
-      if (process.env.NODE_ENV !== "production") console.log("nodemailer res", { err, data });
+      if (process.env.NODE_ENV !== "production" && err) console.log({ "nodemailer res": err });
       if (err) throw "error sending mail";
       if (data) return true;
     }

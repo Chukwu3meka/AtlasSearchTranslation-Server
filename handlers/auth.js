@@ -140,7 +140,7 @@ exports.finalizeSignup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   try {
-    // if (process.env.NODE !== "production") throw "Server error";
+    if (process.env.NODE === "production") throw { message: "Server error" };
     const { password, email } = req.body;
 
     validate({ type: "email", value: email });
@@ -150,25 +150,25 @@ exports.signin = async (req, res) => {
       attributes: ["hasNumber", "hasSpecialChar", "hasRange", "hasLetter"],
     });
 
-    throw "sds";
-
     // verify that account exist, else throw an error
     const profileData = await Profiles.findOne({ email });
+
     if (!profileData) throw { message: "Invalid Email/Password" };
 
     const {
-      auth: { password: dbPasseord, wrongAttempts, accountLocked },
+      auth: { password: dbPassword, wrongAttempts, accountLocked },
     } = profileData;
 
-    const rightPassword = await bcrypt.compare(dbPasseord, password);
+    const rightPassword = await bcrypt.compare(dbPassword, password);
+    console.log(profileData._id, rightPassword);
 
     if (rightPassword) {
       // check if account has been locked for 3 hours
       const accountNotLocked = Math.round(Math.abs(new Date().getTime() - new Date(accountLocked).getTime()) / 36e5) >= 3;
 
-      if (!accountNotLocked) throw "Account is temporarily locked, Please try again later";
+      if (accountNotLocked) throw { message: "Account is temporarily locked, Please try again later" };
 
-      // throw "correct password";
+      throw "correct password";
 
       // reset wrongPassword counter
       await Profiles.updateOne({ email }, { $set: { "auth.wrongAttempts": 0 } });
@@ -179,12 +179,6 @@ exports.signin = async (req, res) => {
         .status(200)
         .json({ token, session: profileData.auth.session, userData: { name: profileData.name, role: profileData.auth.role } });
     } else {
-      // check if wrong attempts exceeds 5
-
-      // resend new verification link
-
-      // increment wrongPassword counter
-
       await Profiles.updateOne(
         { email },
         {
@@ -192,7 +186,8 @@ exports.signin = async (req, res) => {
           $set: { "auth.accountLocked": new Date() }, // <= set new time to track account locked
         }
       );
-      throw "Invalid Email/Password";
+
+      throw { message: "Invalid Email/Password" };
     }
   } catch (err) {
     return catchError({ res, err, message: err.message || "A signin error occured" });
