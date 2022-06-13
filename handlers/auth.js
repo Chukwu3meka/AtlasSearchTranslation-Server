@@ -163,12 +163,16 @@ exports.signin = async (req, res) => {
       // reset wrongPassword counter
       await Profiles.updateOne({ email }, { $set: { "auth.wrongAttempts": 0 } });
 
-      const token = jwt.sign({ session }, process.env.SECRET, { expiresIn: "120 days" });
+      const token = jwt.sign({ session, email, name }, process.env.JWT_SECRET, { expiresIn: "120 days" });
 
-      return res
+      res
+        .status(202)
         .cookie("token", token, {
+          path: "/",
           httpOnly: true,
-          //   secure: true,
+          secure: process.env.NODE === "production",
+          sameSite: process.env.NODE === "production" ? "none" : "lax",
+          expires: new Date(new Date().getTime() + 3600000 * 24 * 120), // <= expires in 120 days,
         })
         .json({ session, name, role });
     } else {
@@ -194,3 +198,10 @@ exports.starter = async (req, res) => {
     return catchError({ res, err, message: err.message || "An error occured" });
   }
 };
+
+// app.get('/deleteCookie', (req, res) => {
+// 	res
+// 		.status(202)
+// 		.clearCookie('Name').send("cookies cleared")
+// });
+// app.listen(40

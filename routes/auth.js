@@ -1,10 +1,10 @@
 const router = require("express").Router(),
-  handler = require("../handlers/auth"),
-  authWare = require("../middleware/auth");
+  routeHandler = require("../handlers/auth"),
+  headerAuthWare = require("../middleware/headerAuth");
 
-router.route("/signup").post(handler.signup);
-router.route("/finalizeSignup").post(handler.finalizeSignup);
-router.route("/signin").post(handler.signin);
-router.route("/starter").post(handler.starter);
+router.route("/signup").post(routeHandler.signup);
+router.route("/finalizeSignup").post(routeHandler.finalizeSignup);
+router.route("/signin").post(routeHandler.signin);
+router.route("/starter").post(routeHandler.starter);
 
 module.exports = router;

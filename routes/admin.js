@@ -1,7 +1,8 @@
 const router = require("express").Router(),
-  handler = require("../handlers/admin"),
-  authWare = require("../middleware/auth");
+  routeHandler = require("../handlers/admin"),
+  headerAuthWare = require("../middleware/headerAuth");
 
-router.route("/starter").post(authWare, handler.starter);
+router.route("/fetchTextSuggestion").post(headerAuthWare, routeHandler.fetchTextSuggestion);
+router.route("/starter").post(routeHandler.starter);
 
 module.exports = router;

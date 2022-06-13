@@ -1,9 +1,9 @@
 const router = require("express").Router(),
-  handler = require("../handlers/textTranslations"),
-  authWare = require("../middleware/auth");
+  routeDandler = require("../handlers/textTranslations"),
+  headerAuthWare = require("../middleware/headerAuth");
 
-router.route("/searchTranslation").post(handler.searchTranslation);
-router.route("/suggestTranslation").post(handler.suggestTranslation);
-router.route("/starter").post(handler.starter);
+router.route("/searchTranslation").post(routeDandler.searchTranslation);
+router.route("/suggestTranslation").post(routeDandler.suggestTranslation);
+router.route("/starter").post(routeDandler.starter);
 
 module.exports = router;
