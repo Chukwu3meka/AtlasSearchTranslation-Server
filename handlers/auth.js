@@ -6,7 +6,7 @@ const validate = require("../utils/validate");
 const mailSender = require("../utils/mailSender");
 
 const { Profiles } = require("../models");
-const { catchError, verificationGenerator } = require("../utils/quickFunctions");
+const { catchError, verificationGenerator, resendVerification, differenceInHour } = require("../utils/quickFunctions");
 
 exports.signup = async (req, res) => {
   try {
@@ -35,6 +35,7 @@ exports.signup = async (req, res) => {
       },
       auth: {
         role: "user",
+        emailVerified: false,
         verification: {
           code: verification,
           time: new Date(),
@@ -50,7 +51,7 @@ exports.signup = async (req, res) => {
 
       await Profiles.updateOne(
         { _id: new ObjectId(dbResponse.insertedId), email },
-        { $set: { "auth.session": `${dbResponse.insertedId}${verificationGenerator(256)}` } }
+        { $set: { "auth.session": `${verificationGenerator(24)}~${dbResponse.insertedId}~${verificationGenerator(24)}` } }
       );
 
       await mailSender({
@@ -79,7 +80,7 @@ exports.finalizeSignup = async (req, res) => {
     const profileData = await Profiles.findOne({ _id: new ObjectId(ref) });
 
     // check if profile exists and has not been verified
-    if (profileData && profileData.auth.verification.code) {
+    if (profileData && !profileData.auth.emailVerified) {
       const {
         email,
         name,
@@ -89,33 +90,16 @@ exports.finalizeSignup = async (req, res) => {
         },
       } = profileData;
 
-      const resendVerification = async () => {
-        const newVerification = verificationGenerator();
-
-        await mailSender({
-          email,
-          subject: "Email Verification",
-          template: "verify",
-          preheader: `Hello, ${name}! Kindly verify your email.`,
-          verifyLink: `/auth/signup?verification=${newVerification}&ref=${ref}`,
-          name,
-        });
-
-        await Profiles.updateOne({ _id: new ObjectId(ref) }, { $set: { "auth.verification": newVerification } });
-
-        throw { message: "Link might have expired, we just sent another verification link" };
-      };
-
       if (verification === code) {
         // check if date exceeds 24 hrs
-        const expiredVerification = Math.round(Math.abs(new Date(dateCreated).getTime() - new Date().getTime()) / 36e5) > 24;
+        const expiredVerification = differenceInHour(dateCreated) > 24;
 
         // resend new verification link
-        if (expiredVerification) return await resendVerification();
+        if (expiredVerification) return await resendVerification({ email, name, ref });
 
         await Profiles.updateOne(
           { _id: new ObjectId(ref), "auth.verification.code": verification },
-          { $set: { "auth.verification.code": false } }
+          { $set: { "auth.verification.code": false, "auth.emailVerified": true } }
         );
 
         await mailSender({
@@ -128,7 +112,7 @@ exports.finalizeSignup = async (req, res) => {
 
         return res.status(200).json({ status: "Email Verification successful" });
       } else {
-        await resendVerification(); // <= resend new verification link
+        return await resendVerification({ email, name, ref }); // <= resend new verification link
       }
     } else {
       throw { message: "Link might have expired or is invalid" };
@@ -152,32 +136,41 @@ exports.signin = async (req, res) => {
 
     // verify that account exist, else throw an error
     const profileData = await Profiles.findOne({ email });
-
     if (!profileData) throw { message: "Invalid Email/Password" };
 
     const {
-      auth: { password: dbPassword, wrongAttempts, accountLocked },
+      _id,
+      name,
+      auth: { password: dbPassword, wrongAttempts, accountLocked, emailVerified, session, role },
     } = profileData;
 
-    const rightPassword = await bcrypt.compare(dbPassword, password);
-    console.log(profileData._id, rightPassword);
+    const rightPassword = await bcrypt.compare(password, dbPassword);
 
     if (rightPassword) {
       // check if account has been locked for 3 hours
-      const accountNotLocked = Math.round(Math.abs(new Date().getTime() - new Date(accountLocked).getTime()) / 36e5) >= 3;
+      const accountTempLocked = differenceInHour(accountLocked) <= 3;
 
-      if (accountNotLocked) throw { message: "Account is temporarily locked, Please try again later" };
+      if (wrongAttempts >= 5 && accountTempLocked) throw { message: "Account is temporarily locked, Please try again later" };
 
-      throw "correct password";
+      if (!emailVerified)
+        return await resendVerification({
+          email,
+          name,
+          ref: _id,
+          errMsg: "Email not verified! We just sent another verification mail",
+        });
 
       // reset wrongPassword counter
       await Profiles.updateOne({ email }, { $set: { "auth.wrongAttempts": 0 } });
 
-      const token = jwt.sign({ session: profileData.auth.session }, process.env.SECRET, { expiresIn: "120 days" });
+      const token = jwt.sign({ session }, process.env.SECRET, { expiresIn: "120 days" });
 
       return res
-        .status(200)
-        .json({ token, session: profileData.auth.session, userData: { name: profileData.name, role: profileData.auth.role } });
+        .cookie("token", token, {
+          httpOnly: true,
+          //   secure: true,
+        })
+        .json({ session, name, role });
     } else {
       await Profiles.updateOne(
         { email },

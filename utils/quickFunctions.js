@@ -1,3 +1,7 @@
+const { ObjectId } = require("mongodb");
+const { Profiles } = require("../models");
+const mailSender = require("./mailSender");
+
 // catch err in return
 module.exports.catchError = ({ res, err, status = 400, message = "Internal Server Error" }) => {
   if (process.env.NODE_ENV === "development") console.log(`${res.req.originalUrl}: ${err || message}`);
@@ -11,4 +15,38 @@ module.exports.verificationGenerator = (len = 256) => {
   for (let i = 0; i < len; i++) text += allowed.charAt(Math.floor(Math.random() * allowed.length));
 
   return text.replace(/\s/g, "");
+};
+
+// resend email verification
+module.exports.resendVerification = async ({
+  email,
+  name,
+  ref,
+  errMsg = "Link might have expired, we just sent another verification link",
+}) => {
+  const newVerification = this.verificationGenerator();
+
+  await mailSender({
+    email,
+    subject: "Email Verification",
+    template: "verify",
+    preheader: `Hello, ${name}! Kindly verify your email.`,
+    verifyLink: `/auth/signup?verification=${newVerification}&ref=${ref}`,
+    name,
+  });
+
+  await Profiles.updateOne(
+    { _id: new ObjectId(ref) },
+    {
+      $set: { "auth.verification": { code: newVerification, time: new Date() } },
+    }
+  );
+
+  throw { message: errMsg };
+};
+
+// difference in hours between date
+module.exports.differenceInHour = (date) => {
+  const diff = Math.round((new Date() - new Date(date)) / (1000 * 60 * 60));
+  return diff;
 };
