@@ -10,8 +10,9 @@ module.exports = async (req, res, next) => {
       if (err) {
         res.status(401).json("Suspicious token");
       } else {
-        const { session, mail, email } = decoded;
-        if (session && mail && email) return next();
+        const { session, name, email } = decoded;
+
+        if (session && name && email) return next();
 
         res.status(401).json("Invalid token");
       }
