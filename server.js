@@ -20,6 +20,7 @@ app.use(
     // allowedHeaders: true,
   })
 );
+
 app.use(require("express").json());
 app.use(require("cookie-parser")());
 
