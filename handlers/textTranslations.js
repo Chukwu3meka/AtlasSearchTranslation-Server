@@ -1,4 +1,4 @@
-const { Greetings, Suggestions } = require("../models");
+const { Translations, Suggestions } = require("../models");
 const { catchError } = require("../utils/quickFunctions");
 
 exports.searchTranslation = async (req, res) => {
@@ -45,7 +45,7 @@ exports.searchTranslation = async (req, res) => {
       { $limit: 1 },
     ];
 
-    const result = await Greetings.aggregate(searchOption).toArray();
+    const result = await Translations.aggregate(searchOption).toArray();
 
     const translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
 

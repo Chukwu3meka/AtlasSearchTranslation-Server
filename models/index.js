@@ -18,5 +18,5 @@ main()
 // .finally(() => client.close()); // <= terminates connection
 
 exports.Suggestions = client.db().collection("suggestions");
-exports.Greetings = client.db().collection("greetings");
+exports.Translations = client.db().collection("greetings");
 exports.Profiles = client.db().collection("profiles");
