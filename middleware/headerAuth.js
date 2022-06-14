@@ -10,15 +10,17 @@ module.exports = async (req, res, next) => {
       if (err) {
         res.status(401).json("Suspicious token");
       } else {
-        const { session, name, email } = decoded;
+        const { session, name, role } = decoded;
 
-        if (session && name && email) return next();
-
-        res.status(401).json("Invalid token");
+        if (session && name && role) {
+          // if path === /verifyToken pass role and name to body
+          if (req.path === "/verifyToken") req.body = { session, name, role, ...req.body };
+          return next();
+        } else {
+          res.status(401).json("Invalid token");
+        }
       }
     });
-
-    next();
   } catch (err) {
     res.status(401).json("Autentication error");
   }

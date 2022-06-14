@@ -5,6 +5,8 @@ const router = require("express").Router(),
 router.route("/signup").post(routeHandler.signup);
 router.route("/finalizeSignup").post(routeHandler.finalizeSignup);
 router.route("/signin").post(routeHandler.signin);
+router.route("/verifyToken").post(headerAuthWare, routeHandler.verifyToken);
+router.route("/signout").post(headerAuthWare, routeHandler.signout);
 router.route("/starter").post(routeHandler.starter);
 
 module.exports = router;

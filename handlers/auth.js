@@ -163,7 +163,7 @@ exports.signin = async (req, res) => {
       // reset wrongPassword counter
       await Profiles.updateOne({ email }, { $set: { "auth.wrongAttempts": 0 } });
 
-      const token = jwt.sign({ session, email, name }, process.env.JWT_SECRET, { expiresIn: "120 days" });
+      const token = jwt.sign({ session, name, role }, process.env.JWT_SECRET, { expiresIn: "120 days" });
 
       res
         .status(202)
@@ -174,7 +174,7 @@ exports.signin = async (req, res) => {
           sameSite: process.env.NODE === "production" ? "none" : "lax",
           expires: new Date(new Date().getTime() + 3600000 * 24 * 120), // <= expires in 120 days,
         })
-        .json({ session, name, role });
+        .json({ name, role });
     } else {
       await Profiles.updateOne(
         { email },
@@ -191,6 +191,28 @@ exports.signin = async (req, res) => {
   }
 };
 
+exports.verifyToken = async (req, res) => {
+  try {
+    const { role, session, name } = req.body;
+
+    // verify that session account exist, else throw an error
+    const profileData = await Profiles.findOne({ "auth.session": session, name, "auth.role": role });
+    if (!profileData) throw { message: "Session is broken" };
+
+    res.status(200).json({ name, role });
+  } catch (err) {
+    return catchError({ res, err, message: err.message || "Unable to validate session" });
+  }
+};
+
+exports.signout = async (req, res) => {
+  try {
+    res.status(202).clearCookie("token").send("cookies cleared");
+  } catch (err) {
+    return catchError({ res, err, message: err.message || "Unable to validate session" });
+  }
+};
+
 exports.starter = async (req, res) => {
   try {
     res.status(200).json("successful");
@@ -198,10 +220,3 @@ exports.starter = async (req, res) => {
     return catchError({ res, err, message: err.message || "An error occured" });
   }
 };
-
-// app.get('/deleteCookie', (req, res) => {
-// 	res
-// 		.status(202)
-// 		.clearCookie('Name').send("cookies cleared")
-// });
-// app.listen(40
