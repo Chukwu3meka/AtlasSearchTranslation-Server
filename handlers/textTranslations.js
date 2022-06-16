@@ -10,9 +10,14 @@ exports.searchTranslation = async (req, res) => {
         $search:
           sourceText.length > 6
             ? {
-                phrase: {
+                // phrase: {
+                //   query: sourceText,
+                //   path: souSrceLanguage.toLowerCase(),
+                // },
+                text: {
                   query: sourceText,
                   path: sourceLanguage.toLowerCase(),
+                  fuzzy: {},
                 },
               }
             : {

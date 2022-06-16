@@ -178,15 +178,15 @@ exports.signin = async (req, res) => {
 
       res
         .status(202)
-        .cookie("token", token, {
-          path: "/",
-          httpOnly: true,
-          sameSite: "lax",
-          secure: process.env.NODE === "production",
-          // sameSite: process.env.NODE === "production" ? "none" : "lax",
-          expires: new Date(new Date().getTime() + 3600000 * 24 * 120), // <= expires in 120 days,
-        })
-        .json({ name, role });
+        // .cookie("token", token, {
+        //   path: "/",
+        //   // httpOnly: true,
+        //   // sameSite: "lax",
+        //   secure: process.env.NODE === "production",
+        //   // sameSite: process.env.NODE === "production" ? "none" : "lax",
+        //   expires: new Date(new Date().getTime() + 3600000 * 24 * 120), // <= expires in 120 days,
+        // })
+        .json({ name, role, token });
     } else {
       await Profiles.updateOne(
         { email },
@@ -205,21 +205,30 @@ exports.signin = async (req, res) => {
 
 exports.verifyToken = async (req, res) => {
   try {
-    const { role, session, name } = req.body;
+    const { token } = req.body;
+    if (!token) throw { message: "You're not authorized to access this page" };
 
-    // verify that session account exist, else throw an error
-    const profileData = await Profiles.findOne({ "auth.session": session, name, "auth.role": role });
-    if (!profileData) throw { message: "Session is broken" };
+    // throw "dfds";
 
-    res.status(200).json({ name, role });
-  } catch (err) {
-    return catchError({ res, err, message: err.message || "Unable to validate session" });
-  }
-};
+    const jwt = require("jsonwebtoken");
 
-exports.signout = async (req, res) => {
-  try {
-    res.status(202).clearCookie("token").send("cookies cleared");
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        res.status(401).json({ message: "Suspicious token" });
+      } else {
+        const { session, name, role } = decoded;
+
+        if (session && name && role) {
+          // verify that session account exist, else throw an error
+          const profileData = await Profiles.findOne({ "auth.session": session, name, "auth.role": role });
+          if (!profileData) throw { message: "Session is broken" };
+
+          res.status(200).json({ name, role });
+        } else {
+          throw { message: "Invalid token" };
+        }
+      }
+    });
   } catch (err) {
     return catchError({ res, err, message: err.message || "Unable to validate session" });
   }

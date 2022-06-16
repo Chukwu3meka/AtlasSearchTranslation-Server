@@ -2,7 +2,10 @@ const jwt = require("jsonwebtoken");
 
 module.exports = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token =
+      req.headers["authorization"] &&
+      req.headers["authorization"].split(" ")[0] === "Bearer" &&
+      req.headers["authorization"].split(" ")[1];
 
     if (!token) return res.status(401).json("You're not authorized to access this page");
 
@@ -12,13 +15,9 @@ module.exports = async (req, res, next) => {
       } else {
         const { session, name, role } = decoded;
 
-        if (session && name && role) {
-          // if path === /verifyToken pass role and name to body
-          if (req.path === "/verifyToken") req.body = { session, name, role, ...req.body };
-          return next();
-        } else {
-          res.status(401).json("Invalid token");
-        }
+        if (session && name && role) return next();
+
+        res.status(401).json("Invalid token");
       }
     });
   } catch (err) {
