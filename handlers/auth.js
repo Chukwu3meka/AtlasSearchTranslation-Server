@@ -206,9 +206,8 @@ exports.signin = async (req, res) => {
 exports.verifyToken = async (req, res) => {
   try {
     const { token } = req.body;
-    if (!token) throw { message: "You're not authorized to access this page" };
 
-    // throw "dfds";
+    if (!token) throw { message: "You're not authorized to access this page" };
 
     const jwt = require("jsonwebtoken");
 

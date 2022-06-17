@@ -5,28 +5,38 @@ const ObjectId = require("mongodb").ObjectId;
 const validate = require("../utils/validate");
 const mailSender = require("../utils/mailSender");
 
-const { Profiles } = require("../models");
-const { catchError, verificationGenerator, resendVerification, differenceInHour } = require("../utils/quickFunctions");
+const { Profiles, Suggestions } = require("../models");
+const { catchError } = require("../utils/quickFunctions");
+// verificationGenerator, resendVerification, differenceInHour
 
 exports.fetchTextSuggestion = async (req, res) => {
+  const limit = 5;
   try {
-    const { initialRequest, lastDocId } = req.body;
+    const { lastDocId } = req.body;
 
     // // verify that account exist and has administrative right, else throw an error
     // const profileData = await Profiles.findOne({ "auth.session": session });
     // if (!profileData) throw { label: "Incorrect URL" };
     // if (!["admin", "superAdmin"].includes(profileData.auth.role)) throw { label: "Incorrect URL" };
 
-    // // get more docs than required, to see if collect has more docs for another query
-    // const suggestionsCursor = initialRequest
-    //   ? Suggestions.find({}).limit(limit + 1)
-    //   : Suggestions.find({ _id: { $gt: lastDocId } }).limit(limit + 1);
+    // get more docs than required, to see if collect has more docs for another query
+    const suggestionsCursor = lastDocId
+      ? Suggestions.find({}).limit(limit)
+      : Suggestions.find({ _id: { $gt: ObjectId(lastDocId) } })
+          .limit(limit)
+          .toArray();
 
-    // const suggestions = await suggestionsCursor.toArray(),
-    //   hasNextDoc = suggestions.length > limit;
+    // ? Suggestions.find({}).limit(limit + 1)
+    // : Suggestions.find({ _id: { $gt: lastDocId } }).limit(limit + 1);
 
-    return res.status(200).json({ suggestions: suggestions.slice(0, limit), hasNextDoc });
+    const suggestions = await suggestionsCursor.toArray(),
+      hasNextDoc = suggestionsCursor.hasNext();
+
+    console.log(suggestions, hasNextDoc);
+
+    return res.status(200).json({ suggestions, hasNextDoc });
   } catch (err) {
+    console.log(err);
     return catchError({ res, err, message: err.message || "An error occured" });
   }
 };

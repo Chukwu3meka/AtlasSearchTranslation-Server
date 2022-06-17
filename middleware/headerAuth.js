@@ -7,6 +7,10 @@ module.exports = async (req, res, next) => {
       req.headers["authorization"].split(" ")[0] === "Bearer" &&
       req.headers["authorization"].split(" ")[1];
 
+    // req.headers["authorization"].split(" ")[1];
+
+    // if (req.headers["authorization"] && req.headers["authorization"].split(" ")[0] === "Bearer") {
+
     if (!token) return res.status(401).json("You're not authorized to access this page");
 
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
