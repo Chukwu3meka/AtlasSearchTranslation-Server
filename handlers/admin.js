@@ -63,6 +63,7 @@ exports.rejectSuggestion = async (req, res) => {
     const { _id } = req.body;
 
     // remove doc from Suggestions
+    //d
     await Suggestions.deleteOne({ _id: new ObjectId(_id) });
 
     res.status(200).json("successful");
