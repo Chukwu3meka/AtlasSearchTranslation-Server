@@ -19,7 +19,10 @@ module.exports = async (req, res, next) => {
       } else {
         const { session, name, role } = decoded;
 
-        if (session && name && role) return next();
+        if (session && name && role) {
+          if (req.originalUrl.includes("admin") && !["admin", "superAdmin"].includes(role)) return res.status(401).json("Invalid URL");
+          return next();
+        }
 
         res.status(401).json("Invalid token");
       }
