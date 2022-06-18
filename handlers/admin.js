@@ -34,23 +34,21 @@ exports.fetchTextSuggestion = async (req, res) => {
 
 exports.approveSuggestion = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const { _id, english } = req.body;
 
-    const { sourceText, sourceLanguage, translationLanguage, suggestedTranslation } = await Suggestions.findOne({
+    // find and remove doc from Suggestions
+    const { sourceText, sourceLanguage, translationLanguage, suggestedTranslation } = await Suggestions.findOneAndDelete({
       _id: new ObjectId(_id),
     });
 
     if (sourceText && sourceLanguage && translationLanguage && suggestedTranslation) {
       await Translations.updateOne(
-        { [sourceLanguage]: sourceText },
+        { [sourceLanguage]: sourceText, english },
         { $set: { [translationLanguage]: suggestedTranslation } },
         {
           upsert: true, // <= update translation else create a new document if it does not exist
         }
       );
-
-      // remove doc from Suggestions after update or insert
-      await Suggestions.deleteOne({ _id });
     } else {
       throw { message: "Suggestion not valid" };
     }
