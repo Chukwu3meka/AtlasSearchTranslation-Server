@@ -50,3 +50,12 @@ module.exports.differenceInHour = (date) => {
   const diff = Math.round((new Date() - new Date(date)) / (1000 * 60 * 60));
   return diff;
 };
+
+// convert all values in object to lowercase
+module.exports.objectValuesToLowerCase = (object) => {
+  const reqBody = {};
+
+  for (const [key, value] of Object.entries(object)) reqBody[key] = value.toLowerCase();
+
+  return reqBody;
+};

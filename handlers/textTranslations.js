@@ -1,9 +1,9 @@
 const { Translations, Suggestions } = require("../models");
-const { catchError } = require("../utils/quickFunctions");
+const { catchError, objectValuesToLowerCase } = require("../utils/quickFunctions");
 
 exports.searchTranslation = async (req, res) => {
   try {
-    const { sourceText, sourceLanguage, translationLanguage } = req.body;
+    const { sourceText, sourceLanguage, translationLanguage } = objectValuesToLowerCase(req.body);
 
     const searchOption = [
       {
@@ -16,7 +16,7 @@ exports.searchTranslation = async (req, res) => {
                 // },
                 text: {
                   query: sourceText,
-                  path: sourceLanguage.toLowerCase(),
+                  path: sourceLanguage,
                   fuzzy: {},
                 },
               }
@@ -27,7 +27,7 @@ exports.searchTranslation = async (req, res) => {
                     {
                       text: {
                         query: sourceText,
-                        path: sourceLanguage.toLowerCase(),
+                        path: sourceLanguage,
                         score: { boost: { value: 5 } },
                       },
                     },
@@ -35,7 +35,7 @@ exports.searchTranslation = async (req, res) => {
                     {
                       autocomplete: {
                         query: sourceText,
-                        path: sourceLanguage.toLowerCase(),
+                        path: sourceLanguage,
                       },
                     },
                   ],
@@ -65,7 +65,7 @@ exports.searchTranslation = async (req, res) => {
             query: sourceText,
             _id: result[0]._id,
             english: result[0].english,
-            result: result[0][translationLanguage.toLowerCase()],
+            result: result[0][translationLanguage],
           }
         : {
             query: sourceText,
@@ -81,7 +81,8 @@ exports.searchTranslation = async (req, res) => {
 
 exports.suggestTranslation = async (req, res) => {
   try {
-    const { sourceText, sourceLanguage, translationText, translationLanguage, translationId, suggestedTranslation } = req.body;
+    const { sourceText, sourceLanguage, translationText, translationLanguage, translationId, suggestedTranslation } =
+      objectValuesToLowerCase(req.body);
 
     await Suggestions.insertOne({
       sourceText,
