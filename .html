@@ -7,7 +7,7 @@ email, name } = req.body; validate({ type: "handle", value: name, label: "Name",
 "Email taken" }; const verification = verificationGenerator(), hashedPassword = await bcrypt.hash(password, 10); const dbResponse = await
 Profiles.insertOne({ name, email, stat: { dateCreated: new Date(), }, auth: { role: "user", verification: { code: verification, time: new
 Date(), }, password: hashedPassword, wrongAttempts: 0, // <= account locked && verification will be reset after 5 attempts }, }); if
-(dbResponse && dbResponse.insertedId) { const verifyLink = `/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}`;
+(dbResponse && dbResponse.insertedId) { const verifyLink = `/auth/verifyMail?verification=${verification}&ref=${dbResponse.insertedId}`;
 await Profiles.updateOne( { _id: new ObjectId(dbResponse.insertedId), email }, { $set: { "auth.session":
 `${dbResponse.insertedId}${verificationGenerator(256)}` } } ); await mailSender({ email, subject: "Email Verification", template:
 "verify", preheader: `Hello, ${name}! Kindly verify your email.`, verifyLink, name, }); } res.status(200).json({ status: "success" }); }
@@ -18,7 +18,7 @@ Code", attributes: ["hasRange(256,256)", "allowDash"] }); validate({ type: "alph
 been verified if (profileData && profileData.auth.verification.code) { const { email, name, stat: { dateCreated }, auth: { verification:
 { code }, }, } = profileData; console.log("verification === code", verification === code); const resendVerification = async () => { const
 newVerification = verificationGenerator(); await mailSender({ email, subject: "Email Verification", template: "verify", preheader:
-`Hello, ${name}! Kindly verify your email.`, verifyLink: `/auth/signup?verification=${newVerification}&ref=${ref}`, name, }); await
+`Hello, ${name}! Kindly verify your email.`, verifyLink: `/auth/verifyMail?verification=${newVerification}&ref=${ref}`, name, }); await
 Profiles.updateOne({ _id: new ObjectId(ref) }, { $set: { "auth.verification": newVerification } }); return catchError({ res, err,
 message: "Link might have expired, we just sent another verification link" }); }; if (verification === code) { // check if date exceeds
 24 hrs const expiredVerification = Math.round(Math.abs(new Date(dateCreated).getTime() - new Date().getTime()) / 36e5) > 24; // resend

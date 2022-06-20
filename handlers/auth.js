@@ -47,7 +47,7 @@ exports.signup = async (req, res) => {
     });
 
     if (dbResponse && dbResponse.insertedId) {
-      const verifyLink = `/auth/signup?verification=${verification}&ref=${dbResponse.insertedId}`;
+      const verifyLink = `/auth/verifyMail?verification=${verification}&ref=${dbResponse.insertedId}`;
 
       await Profiles.updateOne(
         { _id: new ObjectId(dbResponse.insertedId), email },

@@ -31,7 +31,7 @@ module.exports.resendVerification = async ({
     subject: "Email Verification",
     template: "verify",
     preheader: `Hello, ${name}! Kindly verify your email.`,
-    verifyLink: `/auth/signup?verification=${newVerification}&ref=${ref}`,
+    verifyLink: `/auth/verifyMail?verification=${newVerification}&ref=${ref}`,
     name,
   });
 
@@ -55,7 +55,9 @@ module.exports.differenceInHour = (date) => {
 module.exports.objectValuesToLowerCase = (object) => {
   const reqBody = {};
 
-  for (const [key, value] of Object.entries(object)) reqBody[key] = value.toLowerCase();
+  for (const [key, value] of Object.entries(object)) {
+    reqBody[key] = String((value || "").toLowerCase().trim());
+  }
 
   return reqBody;
 };
