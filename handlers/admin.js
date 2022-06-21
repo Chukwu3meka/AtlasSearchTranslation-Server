@@ -36,22 +36,22 @@ exports.approveSuggestion = async (req, res) => {
   try {
     const { _id, english } = req.body;
 
-    // find and remove doc from Suggestions
-    const { sourceText, sourceLanguage, translationLanguage, suggestedTranslation } = await Suggestions.findOneAndDelete({
-      _id: new ObjectId(_id),
-    });
+    // // find and remove doc from Suggestions
+    // const { sourceText, sourceLanguage, translationLanguage, suggestedTranslation } = await Suggestions.findOneAndDelete({
+    //   _id: new ObjectId(_id),
+    // });
 
-    if (sourceText && sourceLanguage && translationLanguage && suggestedTranslation) {
-      await Translations.updateOne(
-        { [sourceLanguage]: sourceText, english },
-        { $set: { [translationLanguage]: suggestedTranslation } },
-        {
-          upsert: true, // <= update translation else create a new document if it does not exist
-        }
-      );
-    } else {
-      throw { message: "Suggestion not valid" };
-    }
+    // if (sourceText && sourceLanguage && translationLanguage && suggestedTranslation) {
+    //   await Translations.updateOne(
+    //     { [sourceLanguage]: sourceText, english },
+    //     { $set: { [translationLanguage]: suggestedTranslation } },
+    //     {
+    //       upsert: true, // <= update translation else create a new document if it does not exist
+    //     }
+    //   );
+    // } else {
+    //   throw { message: "Suggestion not valid" };
+    // }
 
     res.status(200).json("successful");
   } catch (err) {
@@ -63,7 +63,6 @@ exports.rejectSuggestion = async (req, res) => {
     const { _id } = req.body;
 
     // remove doc from Suggestions
-    //d
     await Suggestions.deleteOne({ _id: new ObjectId(_id) });
 
     res.status(200).json("successful");
