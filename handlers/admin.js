@@ -58,6 +58,7 @@ exports.approveSuggestion = async (req, res) => {
     return catchError({ res, err, message: err.message || "An error occured" });
   }
 };
+
 exports.rejectSuggestion = async (req, res) => {
   try {
     const { _id } = req.body;
@@ -70,6 +71,7 @@ exports.rejectSuggestion = async (req, res) => {
     return catchError({ res, err, message: err.message || "An error occured" });
   }
 };
+
 exports.starter = async (req, res) => {
   try {
     res.status(200).json("successful");

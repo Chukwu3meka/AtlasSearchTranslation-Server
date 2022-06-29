@@ -64,7 +64,7 @@ exports.searchTranslation = async (req, res) => {
         ? {
             query: sourceText,
             _id: result[0]._id,
-            english: result[0].english,
+            // english: result[0].english,
             result: result[0][translationLanguage],
           }
         : {
@@ -81,16 +81,14 @@ exports.searchTranslation = async (req, res) => {
 
 exports.suggestTranslation = async (req, res) => {
   try {
-    const { sourceText, sourceLanguage, translationText, translationLanguage, translationId, suggestedTranslation } =
-      objectValuesToLowerCase(req.body);
+    const { suggestion, language, query, _id: translationId, result } = req.body;
 
     await Suggestions.insertOne({
-      sourceText,
-      sourceLanguage,
-      translationText,
-      translationLanguage,
+      query,
+      result,
+      suggestion,
       translationId,
-      suggestedTranslation,
+      ...objectValuesToLowerCase(language),
     });
 
     res.status(200).json({ status: "success" });
