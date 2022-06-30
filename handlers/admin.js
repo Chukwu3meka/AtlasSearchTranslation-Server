@@ -7,7 +7,6 @@ const mailSender = require("../utils/mailSender");
 
 const { Profiles, Suggestions, Translations } = require("../models");
 const { catchError } = require("../utils/quickFunctions");
-// verificationGenerator, resendVerification, differenceInHour
 
 exports.fetchTextSuggestion = async (req, res) => {
   try {
@@ -57,8 +56,6 @@ exports.approveSuggestion = async (req, res) => {
         upsert: true, // <= update translation else create a new document if it does not exist
       }
     );
-
-    console.log({ a });
 
     res.status(200).json("successful");
   } catch (err) {
