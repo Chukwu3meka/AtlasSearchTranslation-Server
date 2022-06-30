@@ -59,37 +59,27 @@ exports.searchTranslation = async (req, res) => {
 
     // const translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
 
-    const translation =
-      result && result[0]
-        ? {
-            query: sourceText,
-            _id: result[0]._id,
-            // english: result[0].english,
-            result: result[0][translationLanguage],
-          }
-        : {
-            query: sourceText,
-            result: "no translation found",
-            // result: "",
-          };
+    const translation = {
+      query: sourceText,
+      id: result[0] ? result[0]._id : null,
+      result: result[0] ? result[0][translationLanguage] : "no translation found",
+    };
 
     res.status(200).json(translation);
   } catch (err) {
+    console.log(err);
     return catchError({ res, err, message: err.message || "translation not found" });
   }
 };
 
 exports.suggestTranslation = async (req, res) => {
   try {
-    const { suggestion, language, query, _id: translationId, result } = req.body;
+    const { language, suggestion, query, translation } = objectValuesToLowerCase(req.body);
 
-    await Suggestions.insertOne({
-      query,
-      result,
-      suggestion,
-      translationId,
-      ...objectValuesToLowerCase(language),
-    });
+    if ([language, suggestion, query, translation].includes(null) || [language, suggestion, query, translation].includes(undefined))
+      throw "Parameters broken";
+
+    await Suggestions.insertOne({ query, translation, suggestion, ...objectValuesToLowerCase(language) });
 
     res.status(200).json({ status: "success" });
   } catch (err) {

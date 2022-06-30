@@ -56,7 +56,7 @@ module.exports.objectValuesToLowerCase = (object) => {
   const reqBody = {};
 
   for (const [key, value] of Object.entries(object)) {
-    reqBody[key] = String((value || "").toLowerCase().trim());
+    reqBody[key] = typeof value === "string" ? value.toLowerCase().trim() : value;
   }
 
   return reqBody;
