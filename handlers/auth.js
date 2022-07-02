@@ -118,7 +118,7 @@ exports.finalizeSignup = async (req, res) => {
       throw { message: "Link might have expired or is invalid" };
     }
   } catch (err) {
-    return catchError({ res, err, message: err.message || "Unable to finalize signup" });
+    return catchError({ res, err, message: err.message || "Unable to create account" });
   }
 };
 
