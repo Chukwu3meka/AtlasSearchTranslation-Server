@@ -19,12 +19,13 @@ module.exports.verificationGenerator = (len = 256) => {
 
 // resend email verification
 module.exports.resendVerification = async ({
-  email,
-  name,
   ref,
+  name,
+  code,
+  email,
   errMsg = "Link might have expired, we just sent another verification link",
 }) => {
-  const newVerification = this.verificationGenerator();
+  const newVerification = code || this.verificationGenerator();
 
   await mailSender({
     email,
@@ -35,12 +36,8 @@ module.exports.resendVerification = async ({
     name,
   });
 
-  await Profiles.updateOne(
-    { _id: new ObjectId(ref) },
-    {
-      $set: { "auth.verification": { code: newVerification, time: new Date() } },
-    }
-  );
+  if (!code)
+    await Profiles.updateOne({ _id: new ObjectId(ref) }, { $set: { "auth.verification": { code: newVerification, time: new Date() } } });
 
   throw { message: errMsg };
 };

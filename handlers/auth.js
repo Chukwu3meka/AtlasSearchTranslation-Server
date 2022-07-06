@@ -70,7 +70,7 @@ exports.signup = async (req, res) => {
   }
 };
 
-exports.finalizeSignup = async (req, res) => {
+exports.verifyMail = async (req, res) => {
   try {
     const { verification, ref } = req.body;
 
@@ -84,15 +84,14 @@ exports.finalizeSignup = async (req, res) => {
       const {
         email,
         name,
-        stat: { dateCreated },
         auth: {
-          verification: { code },
+          verification: { code, time },
         },
       } = profileData;
 
       if (verification === code) {
         // check if date exceeds 24 hrs
-        const expiredVerification = differenceInHour(dateCreated) > 24;
+        const expiredVerification = differenceInHour(time) > 24;
 
         // resend new verification link
         if (expiredVerification) return await resendVerification({ email, name, ref });
@@ -102,13 +101,13 @@ exports.finalizeSignup = async (req, res) => {
           { $set: { "auth.verification.code": false, "auth.emailVerified": true } }
         );
 
-        await mailSender({
-          email: email,
-          subject: "Welcome to Atlas Search Translation",
-          template: "welcome",
-          preheader: `Welcome ${name}!`,
-          name,
-        });
+        // await mailSender({
+        //   email: email,
+        //   subject: "Welcome to Atlas Search Translation",
+        //   template: "welcome",
+        //   preheader: `Welcome ${name}!`,
+        //   name,
+        // });
 
         return res.status(200).json({ status: "Email Verification successful" });
       } else {
@@ -141,7 +140,15 @@ exports.signin = async (req, res) => {
     const {
       _id,
       name,
-      auth: { password: dbPassword, wrongAttempts, accountLocked, emailVerified, session, role },
+      auth: {
+        password: dbPassword,
+        wrongAttempts,
+        accountLocked,
+        emailVerified,
+        session,
+        role,
+        verification: { code, time },
+      },
     } = profileData;
 
     const rightPassword = await bcrypt.compare(password, dbPassword);
@@ -152,13 +159,15 @@ exports.signin = async (req, res) => {
 
       if (wrongAttempts >= 5 && accountTempLocked) throw { message: "Account is temporarily locked, Please try again later" };
 
-      if (!emailVerified)
+      if (!emailVerified) {
         return await resendVerification({
-          email,
           name,
+          email,
           ref: _id,
+          code: differenceInHour(time) <= 24 ? code : null,
           errMsg: "Email not verified! We just sent another verification mail",
         });
+      }
 
       // reset wrongPassword counter
       await Profiles.updateOne({ email }, { $set: { "auth.wrongAttempts": 0 } });
