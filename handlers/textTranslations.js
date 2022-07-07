@@ -8,7 +8,8 @@ exports.searchTranslation = async (req, res) => {
     const searchOption = [
       {
         $search:
-          sourceText.length > 6
+          // sourceText.length > 6   what if it  returning multiple same score
+          sourceText.length > 10
             ? {
                 // phrase: {
                 //   query: sourceText,
@@ -31,9 +32,9 @@ exports.searchTranslation = async (req, res) => {
                         score: { boost: { value: 5 } },
                       },
                     },
-
                     {
-                      autocomplete: {
+                      // autocomplete: {
+                      phrase: {
                         query: sourceText,
                         path: sourceLanguage,
                       },
@@ -49,15 +50,17 @@ exports.searchTranslation = async (req, res) => {
           french: 1,
           english: 1,
           spanish: 1,
-          // score: { $meta: "searchScore" }
+          score: { $meta: "searchScore" },
         },
       },
-      { $limit: 1 },
+      { $limit: 4 },
     ];
 
     const result = await Translations.aggregate(searchOption).toArray();
 
     // const translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
+
+    console.log(result);
 
     const translation = {
       query: sourceText,
