@@ -77,7 +77,7 @@ exports.searchTranslation = async (req, res) => {
 
 exports.suggestTranslation = async (req, res) => {
   try {
-    const { language, suggestion, query, translation } = objectValuesToLowerCase(req.body);
+    const { language, suggestion, query, translation = "no translation found" } = objectValuesToLowerCase(req.body);
 
     if ([language, suggestion, query, translation].includes(null) || [language, suggestion, query, translation].includes(undefined))
       throw "Parameters broken";
@@ -86,6 +86,7 @@ exports.suggestTranslation = async (req, res) => {
 
     res.status(200).json({ status: "success" });
   } catch (err) {
+    console.log(err);
     return catchError({ res, err, message: err.message || "Suggestion not sent" });
   }
 };
