@@ -49,10 +49,7 @@ exports.signup = async (req, res) => {
     if (dbResponse && dbResponse.insertedId) {
       const verifyLink = `/auth/verifyMail?verification=${verification}&ref=${dbResponse.insertedId}`;
 
-      await Profiles.updateOne(
-        { _id: new ObjectId(dbResponse.insertedId), email },
-        { $set: { "auth.session": `${verificationGenerator(24)}~${dbResponse.insertedId}~${verificationGenerator(24)}` } }
-      );
+      await Profiles.updateOne({ _id: new ObjectId(dbResponse.insertedId), email });
 
       await mailSender({
         email,

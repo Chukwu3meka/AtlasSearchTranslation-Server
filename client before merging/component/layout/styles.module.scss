@@ -1,0 +1,33 @@
+@import "@source/_variables";
+
+.layout {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  box-sizing: border-box;
+  font-family: "Playfair Display", cursive;
+  -webkit-box-sizing: border-box;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+
+  * {
+    outline: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    img {
+      overflow: hidden;
+    }
+  }
+
+  a,
+  a:link {
+    text-decoration: none;
+    color: initial;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}

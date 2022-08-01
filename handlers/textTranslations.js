@@ -9,7 +9,7 @@ exports.searchTranslation = async (req, res) => {
       {
         $search:
           // sourceText.length > 6   what if it  returning multiple same score
-          sourceText.length > 10
+          sourceText.length > 6
             ? {
                 // phrase: {
                 //   query: sourceText,
@@ -18,7 +18,7 @@ exports.searchTranslation = async (req, res) => {
                 text: {
                   query: sourceText,
                   path: sourceLanguage,
-                  fuzzy: {},
+                  // fuzzy: {},
                 },
               }
             : {
@@ -60,7 +60,7 @@ exports.searchTranslation = async (req, res) => {
 
     // const translation = result && result[0] ? result[0][`${translationLanguage.toLowerCase()}`] : "no translation found";
 
-    console.log(result);
+    // Suggestions.in
 
     const translation = {
       query: sourceText,

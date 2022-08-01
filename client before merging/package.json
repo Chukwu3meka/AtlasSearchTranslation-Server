@@ -1,0 +1,42 @@
+{
+  "name": "atlassearchtranslation",
+  "version": "1.0.1",
+  "description": "AtlasSearchTranslation",
+  "scripts": {
+    "dev": "cd ../AtlasSearchTranslation Server && npm run dev && cd ../AtlasSearchTranslation Web && next dev",
+    "web": "next dev"
+  },
+  "keywords": [
+    "AtlasSearchTranslation"
+  ],
+  "author": "AtlasSearchTranslation",
+  "license": "MIT",
+  "dependencies": {
+    "@emotion/cache": "^11.7.1",
+    "@emotion/react": "^11.7.1",
+    "@emotion/server": "^11.4.0",
+    "@emotion/styled": "^11.6.0",
+    "@mui/icons-material": "^5.8.3",
+    "@mui/lab": "^5.0.0-alpha.85",
+    "@mui/material": "^5.8.3",
+    "@mui/styles": "^5.8.3",
+    "axios": "^0.27.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongodb": "^4.7.0",
+    "next": "^12.1.6",
+    "nodemailer": "^6.7.5",
+    "notistack": "^2.0.5",
+    "prop-types": "^15.8.1",
+    "react": "^17.0.2",
+    "react-cookie": "^4.1.1",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.6",
+    "redux": "^4.2.0",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.1",
+    "sass": "^1.52.3",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,16 @@
+$fontColors: (
+  "pry": #1197c0,
+  "sec": #e2ad26,
+);
+
+@function color($color) {
+  @return map-get($fontColors, $color);
+}
+
+@mixin flex($direction, $width: 100%) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: center;
+  align-items: center;
+  width: $width;
+}
