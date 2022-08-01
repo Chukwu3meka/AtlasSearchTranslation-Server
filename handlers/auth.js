@@ -120,7 +120,7 @@ exports.verifyMail = async (req, res) => {
 
 exports.signin = async (req, res) => {
   try {
-    if (process.env.NODE === "production") throw { message: "Server error" };
+    // if (process.env.NODE === "production") throw { message: "Server error" };
     const { password, email } = req.body;
 
     validate({ type: "email", value: email });
